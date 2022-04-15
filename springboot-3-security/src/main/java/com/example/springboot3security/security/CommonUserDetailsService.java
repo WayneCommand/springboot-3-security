@@ -1,9 +1,7 @@
 package com.example.springboot3security.security;
 
 import com.example.springboot3security.service.FusionUserService;
-import com.example.springboot3security.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,14 +9,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CommonUserDetailsService implements UserDetailsService {
-
-    private final UserService userService;
 
     private final FusionUserService fusionUserService;
 
@@ -26,7 +21,7 @@ public class CommonUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        com.example.springboot3security.model.User _user = userService.findUserByName(username);
+        com.example.springboot3security.model.User _user = fusionUserService.findUserByName(username);
 
         List<String> identifiers = fusionUserService.userIdentifiers(_user.getUserId());
 

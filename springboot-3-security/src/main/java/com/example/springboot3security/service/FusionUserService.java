@@ -2,6 +2,7 @@ package com.example.springboot3security.service;
 
 import com.example.springboot3security.model.Resource;
 import com.example.springboot3security.model.RoleResource;
+import com.example.springboot3security.model.User;
 import com.example.springboot3security.model.UserRole;
 import com.example.springboot3security.repository.*;
 import org.springframework.data.util.Streamable;
@@ -15,7 +16,9 @@ public record FusionUserService(
         RoleRepository roleRepository,
         RoleResourceRepository roleResourceRepository,
         UserRepository userRepository,
-        UserRoleRepository userRoleRepository
+        UserRoleRepository userRoleRepository,
+        UserService userService
+
 ) {
 
 
@@ -38,6 +41,14 @@ public record FusionUserService(
         return resourceList.stream()
                 .map(Resource::getIdentifier)
                 .toList();
+    }
+
+    public User findUserById(Long userId) {
+        return userService.findUserById(userId);
+    }
+
+    public User findUserByName(String name) {
+        return userService.findUserByName(name);
     }
 
 }

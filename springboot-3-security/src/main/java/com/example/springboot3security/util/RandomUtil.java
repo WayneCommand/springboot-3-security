@@ -1,12 +1,13 @@
 package com.example.springboot3security.util;
 
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RandomUtil {
 
-    private static Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     /**
      * 产生[m,n]闭区间的表达式为：res = random().nextInt(n-m+1) + m；
