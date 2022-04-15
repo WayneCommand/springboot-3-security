@@ -1,0 +1,1 @@
+create database `springboot_security` character set utf8mb4;

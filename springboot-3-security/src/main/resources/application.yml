@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: springboot-3-security
