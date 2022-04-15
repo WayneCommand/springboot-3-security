@@ -27,6 +27,9 @@ public class LoginFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
+    /**
+     * 登陆地址
+     */
     private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login", "POST");
 
     private final ObjectMapper json = JsonMapper.builder()
@@ -37,6 +40,7 @@ public class LoginFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        // 是否为登陆
         if (!DEFAULT_ANT_PATH_REQUEST_MATCHER.matches(request)){
             filterChain.doFilter(request, response);
         }else {
@@ -46,12 +50,14 @@ public class LoginFilter extends OncePerRequestFilter {
                     );
 
 
+            // 拿出已认证的用户
             User user = (User) authenticate.getPrincipal();
 
             // sign token
 
             String jwt = tokenService.sign(user);
 
+            // 返回 token
             writeToken(response, jwt);
         }
 

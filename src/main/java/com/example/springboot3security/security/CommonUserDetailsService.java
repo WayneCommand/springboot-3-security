@@ -25,10 +25,12 @@ public class CommonUserDetailsService implements UserDetailsService {
 
         List<String> identifiers = fusionUserService.userIdentifiers(_user.getUserId());
 
+        // 权限集合
         List<SimpleGrantedAuthority> authorities = identifiers.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
+        // 封装成 spring security 可识别的用户
         return User.withUsername(username)
                 .password(_user.getPassword())
                 .authorities(authorities)

@@ -6,7 +6,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,7 +53,7 @@ public class JwtUtil {
         }
     }
 
-    public static UserDetails userDetails(String token) throws JsonProcessingException {
+    public static UserDetails userDetails(String token) {
         String AuthoritiesArr = getClaim(token, "authorities");
         String[] identifiers = AuthoritiesArr.split(",");
 

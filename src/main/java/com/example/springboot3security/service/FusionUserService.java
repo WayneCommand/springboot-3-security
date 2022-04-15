@@ -24,18 +24,21 @@ public record FusionUserService(
 
     public List<String> userIdentifiers(Long userId) {
 
+        // 根据用户ID 查询 用户所有的 角色
         Streamable<UserRole> userRoleList = userRoleRepository.findByUserId(userId);
 
         List<Long> roleIdList = userRoleList
                 .map(UserRole::getRoleId)
                 .toList();
 
+        // 根据角色IDs 查询 所有的 角色资源
         Streamable<RoleResource> roleResourceList = roleResourceRepository.findByRoleIdIn(roleIdList);
 
         List<Long> resIdList = roleResourceList
                 .map(RoleResource::getResId)
                 .toList();
 
+        // 根据 资源ID 找到资源的详细记录
         Streamable<Resource> resourceList = resourceRepository.findByResIdIn(resIdList);
 
         return resourceList.stream()
