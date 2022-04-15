@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+// TODO FIX Deprecated
 @Configuration
 public class AuthenticationManagerConfiguration extends WebSecurityConfigurerAdapter {
 
