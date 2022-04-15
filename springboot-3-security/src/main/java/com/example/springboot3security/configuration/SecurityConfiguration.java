@@ -1,7 +1,7 @@
 package com.example.springboot3security.configuration;
 
-import com.example.springboot3security.security.LoginFilter;
-import com.example.springboot3security.security.TokenAuthenticationFilter;
+import com.example.springboot3security.security.filter.LoginFilter;
+import com.example.springboot3security.security.filter.TokenAuthenticationFilter;
 import com.example.springboot3security.service.TokenService;
 import com.example.springboot3security.security.handler.CommonAccessDeniedHandler;
 import com.example.springboot3security.security.handler.CommonAuthenticationEntryPoint;

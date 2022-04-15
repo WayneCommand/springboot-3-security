@@ -1,4 +1,4 @@
-package com.example.springboot3security.security;
+package com.example.springboot3security.security.filter;
 
 import com.example.springboot3security.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
