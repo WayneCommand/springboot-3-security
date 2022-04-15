@@ -1,12 +1,13 @@
 package com.example.springboot3security.configuration;
 
+import com.example.springboot3security.security.LoginFilter;
 import com.example.springboot3security.security.TokenAuthenticationFilter;
 import com.example.springboot3security.service.TokenService;
 import com.example.springboot3security.security.handler.CommonAccessDeniedHandler;
 import com.example.springboot3security.security.handler.CommonAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,12 +19,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
+@Order(1)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final TokenService tokenService;
     private final UserDetailsService userDetailsService;
+
+    private final AuthenticationManager authenticationManager;
 
     //配置认证请求
     @Override
@@ -54,22 +58,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // 没有认证通过
                 .authenticationEntryPoint(new CommonAuthenticationEntryPoint())
 
-                // 登陆过滤
+                // filters
                 .and()
-                .addFilterAfter(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(loginFilter(), TokenAuthenticationFilter.class);
 
     }
 
     /**
      * Details omitted for brevity
      */
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+
 
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(userDetailsService, tokenService);
+    }
+
+    public LoginFilter loginFilter() {
+        return new LoginFilter(authenticationManager, tokenService);
     }
 }

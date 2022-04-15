@@ -12,4 +12,7 @@ public interface ResourceRepository extends CrudRepository<Resource, Long> {
 
 
     Streamable<Resource> findByResIdIn(List<Long> idList);
+
+    Streamable<Resource> findByIdentifierIn(List<String> idList);
+
 }

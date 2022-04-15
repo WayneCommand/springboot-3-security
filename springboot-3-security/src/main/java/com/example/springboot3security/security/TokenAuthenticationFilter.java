@@ -26,8 +26,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
 
-    private static final String PRINCIPAL = "userId";
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -35,7 +33,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         // Get authorization header and validate
         final String header = request.getHeader("Authorization");
-        if (StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
@@ -49,7 +47,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
         // Get user identity and set it on the spring security context
         UserDetails userDetails = userDetailsService
-                .loadUserByUsername(JwtUtil.getClaim(token, PRINCIPAL));
+                .loadUserByUsername(JwtUtil.getClaim(token, "user_name"));
 
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

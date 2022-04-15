@@ -1,18 +1,19 @@
 package com.example.springboot3security.service;
 
-import com.example.springboot3security.model.User;
 import com.example.springboot3security.util.JwtUtil;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.token.Sha512DigestUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenService {
 
-    private static final String ENCRYPT_KEY = "62da5956da04fdedd0ff08a3f8c812793ef4219cd0405d44bf5412f3264fecf0"; //sha256
-
-    private static final String USER_ID_CLAIM = "userId";
+    private static final String ENCRYPT_KEY = "ccf0a763e1c0dc55d29ef500fd4d43abebb24690ca2764476a68ea15c6b5d553"; //sha256
 
     /**
      * 签发
@@ -20,14 +21,19 @@ public class TokenService {
      * @return
      */
     public String sign(User user) {
-        final Long userId = user.getUserId();
+        String username = user.getUsername();
+        Collection<GrantedAuthority> authorities = user.getAuthorities();
+
 
         final Map<String, String> payload = Map.of(
-                USER_ID_CLAIM, String.valueOf(userId)
+                "user_name", username,
+                "authorities", authorities.stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.joining(","))
         );
 
 
-        return JwtUtil.sign(payload, encrypt(String.valueOf(userId)));
+        return JwtUtil.sign(payload, encrypt(username));
     }
 
 
@@ -39,7 +45,7 @@ public class TokenService {
 
         // 判断是否被block了
 
-        final String userId = JwtUtil.getClaim(token, USER_ID_CLAIM);
+        final String userId = JwtUtil.getClaim(token, "user_name");
         final String secret = encrypt(userId);
 
         return JwtUtil.verify(token, secret);

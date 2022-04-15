@@ -9,11 +9,14 @@ public class SecurityUtil {
         throw new UnsupportedOperationException();
     }
 
-    public static Long getCurrentUserId() {
-        User user = (User) SecurityContextHolder.getContext()
+    public static User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return Long.valueOf(user.getUsername());
+    }
+
+    public static Long getCurrentUserId() {
+        throw new UnsupportedOperationException();
     }
 
 }
