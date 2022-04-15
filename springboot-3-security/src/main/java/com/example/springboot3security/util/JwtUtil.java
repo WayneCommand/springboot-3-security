@@ -6,14 +6,25 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class JwtUtil {
 
     // 默认过期时间
     private static final long EXPIRE_TIME = 60 * 60 * 1000;
+
+    private static final ObjectMapper json = JsonMapper.builder().build();
 
     /**
      * 校验token是否正确
@@ -46,6 +57,21 @@ public class JwtUtil {
         } catch (JWTDecodeException e) {
             return null;
         }
+    }
+
+    public static UserDetails userDetails(String token) throws JsonProcessingException {
+        String AuthoritiesArr = getClaim(token, "authorities");
+        String[] identifiers = AuthoritiesArr.split(",");
+
+        List<SimpleGrantedAuthority> authorities = Stream.of(identifiers)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+
+        return User.withUsername(getClaim(token, "user_name"))
+                .password("")
+                .authorities(authorities)
+                .disabled(false)
+                .build();
     }
 
     /**
