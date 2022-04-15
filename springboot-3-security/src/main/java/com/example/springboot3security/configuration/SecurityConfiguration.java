@@ -26,8 +26,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final TokenService tokenService;
-    private final UserDetailsService userDetailsService;
-
     private final AuthenticationManager authenticationManager;
 
     //配置认证请求
@@ -72,7 +70,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(userDetailsService, tokenService);
+        return new TokenAuthenticationFilter(tokenService);
     }
 
     public LoginFilter loginFilter() {

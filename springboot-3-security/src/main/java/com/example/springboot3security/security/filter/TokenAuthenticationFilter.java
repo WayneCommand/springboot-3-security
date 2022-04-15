@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,7 +22,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
 
     @Override
@@ -45,7 +43,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Get user identity and set it on the spring security context
+        // Get user identity and set it on the JWT
         UserDetails userDetails = JwtUtil.userDetails(token);
 
 
