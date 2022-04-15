@@ -7,9 +7,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,8 +20,6 @@ public class JwtUtil {
 
     // 默认过期时间
     private static final long EXPIRE_TIME = 60 * 60 * 1000;
-
-    private static final ObjectMapper json = JsonMapper.builder().build();
 
     /**
      * 校验token是否正确

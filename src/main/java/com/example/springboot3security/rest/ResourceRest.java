@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/resource")
@@ -24,14 +25,13 @@ public class ResourceRest {
     // https://www.baeldung.com/spring-security-method-security
     // @Secured("project::create")
     @GetMapping
-    public List<Resource> resources() {
+    public Stream<Resource> resources() {
         User currentUser = SecurityUtil.getCurrentUser();
         List<String> authorities = currentUser.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return resourceRepository.findByIdentifierIn(authorities)
-                .toList();
+        return resourceRepository.findByIdentifierIn(authorities).stream();
     }
 
 }
