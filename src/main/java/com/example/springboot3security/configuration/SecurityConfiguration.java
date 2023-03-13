@@ -5,44 +5,54 @@ import com.example.springboot3security.security.filter.TokenAuthenticationFilter
 import com.example.springboot3security.service.TokenService;
 import com.example.springboot3security.security.handler.CommonAccessDeniedHandler;
 import com.example.springboot3security.security.handler.CommonAuthenticationEntryPoint;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// TODO FIX Deprecated
+import java.util.stream.Stream;
+
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@RequiredArgsConstructor
-@Order(1)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     private final TokenService tokenService;
+
     private final AuthenticationManager authenticationManager;
+    private final String[] defaultPermitList = Stream.of(
+            "/actuator/**"
+    ).toArray(String[]::new);
+
+    public SecurityConfiguration(@NonNull TokenService tokenService, @NonNull AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        this.tokenService = tokenService;
+
+        // https://stackoverflow.com/questions/72381114/spring-security-upgrading-the-deprecated-websecurityconfigureradapter-in-spring
+        this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
+    }
+
 
     //配置认证请求
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] permitList = new String[]{
                 "/login"
         };
+
 
         http
                 .csrf().disable()
                 .cors().disable()
 
                 // 所有的请求除了允许的都需要认证
-                .authorizeRequests()
-                .antMatchers(permitList).permitAll()
+                .authorizeHttpRequests()
+                .requestMatchers(permitList).permitAll()
+                .requestMatchers(defaultPermitList).permitAll()
                 .anyRequest().authenticated()
 
                 // 无状态session
@@ -61,12 +71,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterAfter(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(loginFilter(), TokenAuthenticationFilter.class);
-
+        return http.build();
     }
-
-    /**
-     * Details omitted for brevity
-     */
 
 
     public TokenAuthenticationFilter tokenAuthenticationFilter() {

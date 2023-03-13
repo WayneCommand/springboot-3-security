@@ -1,7 +1,7 @@
 package com.example.springboot3security.security.filter;
 
 import com.example.springboot3security.service.TokenService;
-import com.example.springboot3security.util.JwtUtil;
+import com.example.springboot3security.util.SecurityUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +44,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Get user identity and set it on the JWT
-        UserDetails userDetails = JwtUtil.userDetails(token);
+        UserDetails userDetails = SecurityUtil.userDetails(token);
 
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

@@ -6,19 +6,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Date;
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 public class JwtUtil {
-
-    // 默认过期时间
-    private static final long EXPIRE_TIME = 60 * 60 * 1000;
 
     /**
      * 校验token是否正确
@@ -53,30 +47,29 @@ public class JwtUtil {
         }
     }
 
-    public static UserDetails userDetails(String token) {
-        String AuthoritiesArr = getClaim(token, "authorities");
-        String[] identifiers = AuthoritiesArr.split(",");
+    /**
+     * 获得token中的信息无需secret解密也能获得，带默认值
+     *
+     * @param defaultValue      默认值
+     * @return  token中包含的claim
+     */
+    public static String getClaimOrDefault(String token, String claim, String defaultValue) {
+        String claimValue = getClaim(token, claim);
+        if (Objects.isNull(claimValue))
+            return defaultValue;
 
-        List<SimpleGrantedAuthority> authorities = Stream.of(identifiers)
-                .map(SimpleGrantedAuthority::new)
-                .toList();
-
-        return User.withUsername(getClaim(token, "user_name"))
-                .password("")
-                .authorities(authorities)
-                .disabled(false)
-                .build();
+        return claimValue;
     }
 
     /**
      * 生成签名
      *
-     * @param info      PAYLOAD
-     * @param secret    SECRET
+     * @param info   PAYLOAD
+     * @param secret SECRET
+     * @param expire 过期时间
      * @return 加密的token
      */
-    public static String sign(Map<String,String> info, String secret) {
-        Date expire = new Date(System.currentTimeMillis() + EXPIRE_TIME);
+    public static String sign(Map<String, String> info, String secret, Instant expire) {
 
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
@@ -89,20 +82,20 @@ public class JwtUtil {
 
     }
 
+
     /**
      * 获取过期时间
      * @param token
      * @return
      */
-    public static Date getExpTime(String token) {
+    public static Instant getExpTime(String token) {
         final DecodedJWT jwt = JWT.decode(token);
-        return jwt.getExpiresAt();
+        return jwt.getExpiresAtAsInstant();
     }
-
 
     // for test.
     public static void main(String[] args) {
-        final String sign = sign(Map.of("user", "spring"), "boot");
+        final String sign = sign(Map.of("user", "spring"), "boot", Instant.now().plus(Duration.ofDays(1)));
         System.out.println(sign);
     }
 }
