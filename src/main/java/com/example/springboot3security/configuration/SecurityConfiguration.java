@@ -5,9 +5,9 @@ import com.example.springboot3security.security.filter.TokenAuthenticationFilter
 import com.example.springboot3security.service.TokenService;
 import com.example.springboot3security.security.handler.CommonAccessDeniedHandler;
 import com.example.springboot3security.security.handler.CommonAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,26 +20,18 @@ import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private final TokenService tokenService;
-
-    private final AuthenticationManager authenticationManager;
     private final String[] defaultPermitList = Stream.of(
             "/actuator/**"
     ).toArray(String[]::new);
 
-    public SecurityConfiguration(@NonNull TokenService tokenService, @NonNull AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        this.tokenService = tokenService;
-
-        // https://stackoverflow.com/questions/72381114/spring-security-upgrading-the-deprecated-websecurityconfigureradapter-in-spring
-        this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
-    }
-
 
     //配置认证请求
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         String[] permitList = new String[]{
                 "/login"
         };
@@ -70,16 +62,22 @@ public class SecurityConfiguration {
                 // filters
                 .and()
                 .addFilterAfter(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(loginFilter(), TokenAuthenticationFilter.class);
+                .addFilterAfter(loginFilter(authenticationManager), TokenAuthenticationFilter.class);
+
         return http.build();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        // https://stackoverflow.com/questions/72381114/spring-security-upgrading-the-deprecated-websecurityconfigureradapter-in-spring
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenService);
     }
 
-    public LoginFilter loginFilter() {
+    public LoginFilter loginFilter(AuthenticationManager authenticationManager) {
         return new LoginFilter(authenticationManager, tokenService);
     }
 }

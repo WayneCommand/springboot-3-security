@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
+@Entity(name = "sys_user_role")
 public class UserRole implements Serializable {
 
   @Id

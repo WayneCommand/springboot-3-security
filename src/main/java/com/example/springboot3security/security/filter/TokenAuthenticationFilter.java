@@ -30,14 +30,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
         // Get authorization header and validate
-        final String header = request.getHeader("Authorization");
-        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+        String token = SecurityUtil.getToken(request);
+        if (!StringUtils.hasText(token)){
             chain.doFilter(request, response);
             return;
         }
 
-        // Get jwt token and validate
-        final String token = header.split(" ")[1].trim();
+        // jwt  validate
         if (!tokenService.verify(token)) {
             chain.doFilter(request, response);
             return;

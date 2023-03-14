@@ -19,6 +19,7 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        System.err.println(authException.getMessage());
         response.setHeader("Security","Spring");
         response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

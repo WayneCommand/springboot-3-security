@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,8 +27,8 @@ public class SecurityUtil {
     }
 
     public static UserDetails userDetails(String token) {
-        List<SimpleGrantedAuthority> authorities = null;
-        String AuthoritiesArr = JwtUtil.getClaim(token, "authority");
+        List<SimpleGrantedAuthority> authorities = Collections.emptyList();
+        String AuthoritiesArr = JwtUtil.getClaim(token, "authorities");
         if (StringUtils.hasText(AuthoritiesArr)) {
 
             String[] authority = AuthoritiesArr.split(",");
@@ -40,7 +41,7 @@ public class SecurityUtil {
         // -1 为不正常的值，但不会出现，也不应该出现
         String id = JwtUtil.getClaimOrDefault(token, "id", "-1");
         return User.builder()
-                .username(JwtUtil.getClaim(token, "username"))
+                .username(JwtUtil.getClaim(token, "user_name"))
                 .password("")
                 .authorities(authorities)
                 .disabled(false)

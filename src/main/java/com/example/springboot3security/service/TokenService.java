@@ -1,6 +1,9 @@
 package com.example.springboot3security.service;
 
 import com.example.springboot3security.SecurityProperties;
+import com.example.springboot3security.security.store.InMemoryTokenStore;
+import com.example.springboot3security.security.store.TokenDetail;
+import com.example.springboot3security.security.store.TokenStore;
 import com.example.springboot3security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,10 +30,11 @@ import java.util.stream.Collectors;
 public class TokenService {
 
     private static final String ENCRYPT_KEY = "ccf0a763e1c0dc55d29ef500fd4d43abebb24690ca2764476a68ea15c6b5d553"; //sha256
-    public static final String ACTIVE_USER_TOKEN = "active_user_token";
     public static final String TOKEN_VERSION = "1.1";
 
     private final SecurityProperties securityProperties;
+
+    private final TokenStore tokenStore = new InMemoryTokenStore();
 
     /**
      * 签发
@@ -51,7 +55,13 @@ public class TokenService {
         // https://www.dariawan.com/tutorials/java/java-localdatetime-tutorial-examples/
         var expireTime = Instant.now().plus(Duration.ofMinutes(securityProperties.getAccessExpire()));
 
-        return JwtUtil.sign(payload, encrypt(username), expireTime);
+        String sign = JwtUtil.sign(payload, encrypt(username), expireTime);
+
+        tokenStore.put(sign, Map.of(
+                "status", "active",
+                "secure", encrypt(username)));
+
+        return sign;
     }
 
 
@@ -64,7 +74,7 @@ public class TokenService {
         final var expTime = JwtUtil.getExpTime(token);
         // 如果当前时间小于过期时间 执行block逻辑
         if (expTime.isBefore(Instant.now())) {
-            // TODO ser filed
+            tokenStore.remove(token);
         }
     }
 
@@ -75,7 +85,7 @@ public class TokenService {
      * @return true: 是被block了
      */
     public boolean isBlock(String token) {
-        return false;
+        return !tokenStore.exist(token);
     }
 
     /**
@@ -84,6 +94,7 @@ public class TokenService {
     public boolean verify(String token) {
 
         // 判断是否被block了
+        if (isBlock(token)) return false;
 
         final String userId = JwtUtil.getClaim(token, "user_name");
         final String secret = encrypt(userId);
@@ -106,13 +117,11 @@ public class TokenService {
 
     // 查询用户是否在线
     private boolean isActiveUser(String token) {
-        return activeUserTokenList()
-                .contains(token);
+        return tokenStore.exist(token);
     }
 
     // 查询在线的 Token 列表
     private Set<String> activeUserTokenList() {
-        throw new UnsupportedOperationException();
+        return tokenStore.list().map(TokenDetail::token).collect(Collectors.toSet());
     }
-
 }
