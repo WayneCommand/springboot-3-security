@@ -1,6 +1,7 @@
 package com.example.springboot3security.service;
 
 import com.example.springboot3security.SecurityProperties;
+import com.example.springboot3security.security.SecurityConst;
 import com.example.springboot3security.security.store.InMemoryTokenStore;
 import com.example.springboot3security.security.store.TokenDetail;
 import com.example.springboot3security.security.store.TokenStore;
@@ -45,11 +46,11 @@ public class TokenService {
 
 
         final Map<String, String> payload = Map.of(
-                "user_name", username,
-                "authorities", authorities.stream()
+                SecurityConst.PAYLOAD_USER_NAME, username,
+                SecurityConst.PAYLOAD_AUTHORITIES, authorities.stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.joining(",")),
-                "ver", TOKEN_VERSION
+                SecurityConst.PAYLOAD_VER, TOKEN_VERSION
         );
 
         // https://www.dariawan.com/tutorials/java/java-localdatetime-tutorial-examples/
@@ -96,7 +97,7 @@ public class TokenService {
         // 判断是否被block了
         if (isBlock(token)) return false;
 
-        final String userId = JwtUtil.getClaim(token, "user_name");
+        final String userId = JwtUtil.getClaim(token, SecurityConst.PAYLOAD_USER_NAME);
         final String secret = encrypt(userId);
 
         return JwtUtil.verify(token, secret);

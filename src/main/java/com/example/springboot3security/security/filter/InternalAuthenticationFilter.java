@@ -1,5 +1,6 @@
 package com.example.springboot3security.security.filter;
 
+import com.example.springboot3security.security.SecurityConst;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,22 +19,21 @@ import java.io.IOException;
  */
 public class InternalAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String INTERNAL_FLAG = "internal";
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // Get authorization header and validate
-        final String header = request.getHeader("Authentication");
+        final String header = request.getHeader(SecurityConst.AUTH_HEADER_NAME);
 
         // 如果是内部调用 就简单的放进API的Token
-        if (INTERNAL_FLAG.equals(header)) {
+        if (SecurityConst.INTERNAL_FLAG.equals(header)) {
             System.err.println("internal call.");
             UserDetails userDetails = User.builder()
-                    .username("api")
-                    .password("api")
-                    .authorities("api")
+                    .username(SecurityConst.API_FLAG)
+                    .password(SecurityConst.API_FLAG)
+                    .authorities(SecurityConst.API_FLAG)
                     .build();
 
             // Get user identity and set it on the spring security context

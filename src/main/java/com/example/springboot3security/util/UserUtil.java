@@ -1,5 +1,6 @@
 package com.example.springboot3security.util;
 
+import com.example.springboot3security.security.SecurityConst;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,7 +50,7 @@ public class UserUtil {
         // 如果获取不到 Token， 返回一个匿名用户
         if (!StringUtils.hasText(token)) {
             return User.builder()
-                    .username("anonymous_user")
+                    .username(SecurityConst.PAYLOAD_USER_NAME_ANONYMOUS_USER)
                     .build();
         }
 
